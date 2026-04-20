@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.book.mapper.UserPenaltyMapper">
+    
+    <resultMap type="UserPenalty" id="UserPenaltyResult">
+        <result property="penaltyId"    column="penalty_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="points"    column="points"    />
+        <result property="isBanned"    column="is_banned"    />
+        <result property="banUntil"    column="ban_until"    />
+    </resultMap>
+
+    <sql id="selectUserPenaltyVo">
+        select penalty_id, user_id, points, is_banned, ban_until from user_penalty
+    </sql>
+
+    <select id="selectUserPenaltyList" parameterType="UserPenalty" resultMap="UserPenaltyResult">
+        <include refid="selectUserPenaltyVo"/>
+        <where>  
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="points != null "> and points = #{points}</if>
+            <if test="isBanned != null  and isBanned != ''"> and is_banned = #{isBanned}</if>
+            <if test="banUntil != null "> and ban_until = #{banUntil}</if>
+        </where>
+    </select>
+    
+    <select id="selectUserPenaltyByPenaltyId" parameterType="Long" resultMap="UserPenaltyResult">
+        <include refid="selectUserPenaltyVo"/>
+        where penalty_id = #{penaltyId}
+    </select>
+
+    <insert id="insertUserPenalty" parameterType="UserPenalty" useGeneratedKeys="true" keyProperty="penaltyId">
+        insert into user_penalty
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="points != null">points,</if>
+            <if test="isBanned != null and isBanned != ''">is_banned,</if>
+            <if test="banUntil != null">ban_until,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="points != null">#{points},</if>
+            <if test="isBanned != null and isBanned != ''">#{isBanned},</if>
+            <if test="banUntil != null">#{banUntil},</if>
+         </trim>
+    </insert>
+
+    <update id="updateUserPenalty" parameterType="UserPenalty">
+        update user_penalty
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="points != null">points = #{points},</if>
+            <if test="isBanned != null and isBanned != ''">is_banned = #{isBanned},</if>
+            <if test="banUntil != null">ban_until = #{banUntil},</if>
+        </trim>
+        where penalty_id = #{penaltyId}
+    </update>
+
+    <delete id="deleteUserPenaltyByPenaltyId" parameterType="Long">
+        delete from user_penalty where penalty_id = #{penaltyId}
+    </delete>
+
+    <delete id="deleteUserPenaltyByPenaltyIds" parameterType="String">
+        delete from user_penalty where penalty_id in 
+        <foreach item="penaltyId" collection="array" open="(" separator="," close=")">
+            #{penaltyId}
+        </foreach>
+    </delete>
+</mapper>
